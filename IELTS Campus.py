@@ -172,9 +172,14 @@ if "auth_mode" not in st.session_state:   st.session_state.auth_mode = "signin"
 if "scores" not in st.session_state:      st.session_state.scores = {}
 if "show_admin" not in st.session_state:  st.session_state.show_admin = False
 
-# ── Auto-login ──
+# ════════════════════════════════════════════════════════════════════
+# ✅ DATAFORGE-STYLE SIDEBAR TOGGLE — NEW ADDITION
+# ════════════════════════════════════════════════════════════════════
 if "sidebar_open" not in st.session_state:
     st.session_state.sidebar_open = True
+# ════════════════════════════════════════════════════════════════════
+
+# ── Auto-login ──
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.current_user  = None
@@ -240,6 +245,24 @@ else:
     PILL_C = "rgba(139,26,0,0.10)"; PILL_CC = "#8b1a00"
     SB_SHADOW = "4px 0 16px rgba(0,0,0,0.10)"
 
+# ════════════════════════════════════════════════════════════════════
+# ✅ DATAFORGE-STYLE SIDEBAR CSS — hide sidebar when closed
+# ════════════════════════════════════════════════════════════════════
+_sidebar_hide_css = """
+section[data-testid="stSidebar"] {
+    display: none !important;
+}
+[data-testid="collapsedControl"] {
+    display: none !important;
+}
+.block-container {
+    max-width: 100% !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}
+""" if not st.session_state.sidebar_open else ""
+# ════════════════════════════════════════════════════════════════════
+
 # ─── GLOBAL CSS ──────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
@@ -252,14 +275,9 @@ st.markdown(f"""
 body, p, span, div, input, textarea, select, button, label, td, th, li {{
     font-family:'DM Sans',-apple-system,sans-serif !important;
 }}
-/* ── HIDE ALL STREAMLIT CHROME ── */
 #MainMenu{{visibility:hidden;}}footer{{visibility:hidden;}}
-header[data-testid="stHeader"]{{display:none !important;}}
-[data-testid="stToolbar"]{{display:none !important;}}
 [data-testid="stDecoration"]{{display:none !important;}}
 [data-testid="stStatusWidget"]{{display:none !important;}}
-[data-testid="collapsedControl"]{{display:none !important;}}
-.stAppToolbar{{display:none !important;}}
 div[class*="viewerBadge"]{{display:none !important;}}
 
 html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
@@ -267,10 +285,7 @@ html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
 [data-testid="stAppViewBlockContainer"] {{ background:{BG} !important; }}
 .block-container {{ padding-top:1rem !important; max-width:1380px; }}
 
-
-
-/* ── SIDEBAR ── */
-{"" if st.session_state.get("sidebar_open", True) else "section[data-testid=\"stSidebar\"] { display:none !important; }"}
+/* ── SIDEBAR (existing styles) ── */
 section[data-testid="stSidebar"]{{background:{"linear-gradient(180deg,#0a0000 0%,#100500 100%)" if T=="dark" else "#fdf8f5"} !important;border-right:{"1px solid #1c1c1c" if T=="dark" else "2px solid #e8d5c8"} !important;box-shadow:{"4px 0 20px rgba(0,0,0,0.6)" if T=="dark" else "4px 0 16px rgba(0,0,0,0.08)"} !important;min-height:100vh !important;}}
 section[data-testid="stSidebar"]>div{{background:{"transparent" if T=="dark" else "#fdf8f5"} !important;}}
 section[data-testid="stSidebar"] *{{color:{TEXT1} !important;}}
@@ -561,7 +576,8 @@ section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] .stButton>bu
 
 /* ── HEADER PILL BTNS ── */
 div[data-testid="stHorizontalBlock"]>div:nth-child(2) .stButton>button,
-div[data-testid="stHorizontalBlock"]>div:nth-child(3) .stButton>button {{
+div[data-testid="stHorizontalBlock"]>div:nth-child(3) .stButton>button,
+div[data-testid="stHorizontalBlock"]>div:nth-child(4) .stButton>button {{
     background:{"rgba(255,255,255,0.06)" if T=="dark" else "rgba(26,10,0,0.05)"} !important;
     color:{TEXT1} !important; border:1px solid {BORDER} !important;
     border-radius:20px !important; font-size:.75rem !important;
@@ -570,13 +586,20 @@ div[data-testid="stHorizontalBlock"]>div:nth-child(3) .stButton>button {{
     box-shadow:none !important;
 }}
 div[data-testid="stHorizontalBlock"]>div:nth-child(2) .stButton>button:hover,
-div[data-testid="stHorizontalBlock"]>div:nth-child(3) .stButton>button:hover {{
+div[data-testid="stHorizontalBlock"]>div:nth-child(3) .stButton>button:hover,
+div[data-testid="stHorizontalBlock"]>div:nth-child(4) .stButton>button:hover {{
     background:{ACCENT} !important; color:white !important;
     border-color:{ACCENT} !important; transform:none !important;
 }}
 
 @keyframes slideUp {{ from{{opacity:0;transform:translateY(14px)}} to{{opacity:1;transform:none}} }}
 .slide-up {{ animation:slideUp .45s ease-out both; }}
+
+/* ════════════════════════════════════════════════════════════
+   ✅ DATAFORGE-STYLE SIDEBAR TOGGLE CSS
+   When sidebar_open = False, inject this CSS to hide sidebar
+   ════════════════════════════════════════════════════════════ */
+{_sidebar_hide_css}
 </style>
 """, unsafe_allow_html=True)
 
@@ -916,7 +939,7 @@ with st.sidebar:
 
     if is_admin:
         is_open = st.session_state.get("show_admin", False)
-        if st.button(f"{'&#10005; Close' if is_open else '🔐 Open'} Admin Panel", key="toggle_admin", use_container_width=True):
+        if st.button(f"{'✕ Close' if is_open else '🔐 Open'} Admin Panel", key="toggle_admin", use_container_width=True):
             st.session_state["show_admin"] = not is_open; st.rerun()
         st.markdown("---")
 
@@ -951,16 +974,25 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-_h1, _h2, _h3, _h4 = st.columns([7, 1.1, 1.1, 1.1])
+# ════════════════════════════════════════════════════════════════════
+# ✅ DATAFORGE-STYLE HEADER BUTTONS — sidebar toggle added as col 2
+# Original: _h1, _h2, _h3 = st.columns([8, 1.1, 1.1])
+# New:      _h1, _h2, _h3, _h4 = st.columns([6.8, 1.5, 1.1, 1.1])
+# ════════════════════════════════════════════════════════════════════
+_h1, _h2, _h3, _h4 = st.columns([6.8, 1.5, 1.1, 1.1])
+
 with _h2:
-    sb_icon = "✕ Menu" if st.session_state.get("sidebar_open", True) else "☰ Menu"
-    if st.button(sb_icon, key="sidebar_toggle_btn", use_container_width=True):
-        st.session_state.sidebar_open = not st.session_state.get("sidebar_open", True)
+    # ── SIDEBAR TOGGLE BUTTON (DataForge-style) ──
+    _sb_label = "◀ Hide Sidebar" if st.session_state.sidebar_open else "▶ Show Sidebar"
+    if st.button(_sb_label, key="sidebar_toggle_btn", use_container_width=True):
+        st.session_state.sidebar_open = not st.session_state.sidebar_open
         st.rerun()
+
 with _h3:
     theme_lbl = "🌙 Dark" if T == "light" else "☀️ Light"
     if st.button(theme_lbl, key="theme_toggle", use_container_width=True):
         st.session_state.theme = "dark" if T == "light" else "light"; st.rerun()
+
 with _h4:
     if st.button("🚪 Out", key="hdr_logout", use_container_width=True):
         tok = st.session_state.get("login_token")
@@ -971,6 +1003,7 @@ with _h4:
         st.session_state.current_user  = None
         st.session_state.login_token   = None
         st.rerun()
+# ════════════════════════════════════════════════════════════════════
 
 # ─── ADMIN PANEL ─────────────────────────────────────────────────────────────────
 if is_admin and st.session_state.get("show_admin", False):
@@ -1086,7 +1119,6 @@ if is_admin and st.session_state.get("show_admin", False):
                             st.success("Saved!"); st.rerun()
 
                     with p2:
-                        # Ban
                         if is_b:
                             st.error(f"🚫 Banned: {ud.get('ban_reason','—')}")
                             if st.button("✅ Unban", key=f"unban_{em}"):
@@ -1102,7 +1134,6 @@ if is_admin and st.session_state.get("show_admin", False):
                                 _save(TOKENS_FILE, {t:v for t,v in _load(TOKENS_FILE).items() if v.get("email")!=em})
                                 log_activity(em,"banned",f"Banned: {ban_r}"); st.error("🚫 Banned!"); st.rerun()
                         st.markdown("---")
-                        # Suspend
                         if is_s:
                             st.warning(f"⏸️ Until: {ud.get('suspended_until','—')}")
                             if st.button("▶️ Lift Suspension", key=f"unsus_{em}"):
@@ -1118,7 +1149,6 @@ if is_admin and st.session_state.get("show_admin", False):
                                 st.warning(f"Suspended {sus_d}d!"); st.rerun()
 
                     with p3:
-                        # Verify
                         if is_ve:
                             if st.button("❌ Remove Verification", key=f"unverify_{em}"):
                                 udb2=_load(USERS_FILE); udb2[em]["verified"]=False; _save(USERS_FILE, udb2)
@@ -1128,7 +1158,6 @@ if is_admin and st.session_state.get("show_admin", False):
                                 udb2=_load(USERS_FILE); udb2[em].update({"verified":True,"verified_at":now_str()})
                                 _save(USERS_FILE, udb2); st.success("✔️ Verified!"); st.rerun()
                         st.markdown("---")
-                        # Moderator
                         if u_role=="moderator":
                             if st.button("👤 Remove Moderator", key=f"unmod_{em}"):
                                 udb2=_load(USERS_FILE); udb2[em]["role"]="user"; _save(USERS_FILE, udb2)
@@ -1138,7 +1167,6 @@ if is_admin and st.session_state.get("show_admin", False):
                                 udb2=_load(USERS_FILE); udb2[em]["role"]="moderator"; _save(USERS_FILE, udb2)
                                 st.success("🛡️ Moderator!"); st.rerun()
                         st.markdown("---")
-                        # Password reset
                         new_pw = st.text_input("New Password", type="password", key=f"rpw_{em}")
                         if st.button("🔑 Reset Password", key=f"do_rpw_{em}"):
                             if new_pw and len(new_pw)>=6:
