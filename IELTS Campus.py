@@ -289,6 +289,25 @@ body, p, span, div, input, textarea, select, button, label, td, th, li {{
 [data-testid="stDecoration"]{{display:none !important;}}
 [data-testid="stStatusWidget"]{{display:none !important;}}
 div[class*="viewerBadge"]{{display:none !important;}}
+/* ── Custom Sidebar Toggle Button ── */
+div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    padding: 0.4rem 0.8rem !important;
+    box-shadow: 0 4px 15px rgba(102,126,234,0.4) !important;
+    transition: all 0.2s ease !important;
+}
+div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(102,126,234,0.6) !important;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+}
+
 /* ── ALWAYS hide Streamlit's native sidebar collapse arrow & resize handle ── */
 [data-testid="collapsedControl"]{{display:none !important;}}
 button[kind="header"]{{display:none !important;}}
@@ -630,45 +649,63 @@ div[data-testid="stHorizontalBlock"]>div:nth-child(4) .stButton>button:hover {{
 </style>
 """, unsafe_allow_html=True)
 
-# ─── JS: Force remove sidebar Material Icon toggle button ───────────────────
+# ─── JS: Nuke ALL native Streamlit sidebar controls ─────────────────────────
 st.markdown("""
 <script>
 (function() {
-    function killSidebarToggle() {
-        // 1. Hide by data-testid selectors
-        ['[data-testid="stSidebarResizeHandle"]',
-         '[data-testid="collapsedControl"]',
-         '[data-testid="stSidebarCollapseButton"]'].forEach(function(s){
-            document.querySelectorAll(s).forEach(function(e){ e.style.display='none'; });
+    var KILL_SELECTORS = [
+        '[data-testid="stSidebarResizeHandle"]',
+        '[data-testid="collapsedControl"]',
+        '[data-testid="stSidebarCollapseButton"]',
+        '[data-testid="stSidebarUserContent"] ~ div button',
+        'section[data-testid="stSidebar"] + div > button',
+        '.st-emotion-cache-1gwvy71',
+        '.st-emotion-cache-dvne4q',
+    ];
+    var KILL_TEXT = [
+        'keyboard_double_arrow_right',
+        'keyboard_double_arrow_left',
+        'keyboard_double_arrow',
+        'double_arrow',
+        'chevron_right',
+        'chevron_left',
+    ];
+
+    function nukeNativeButtons() {
+        // Kill by selector
+        KILL_SELECTORS.forEach(function(s){
+            try {
+                document.querySelectorAll(s).forEach(function(e){
+                    e.style.cssText += 'display:none!important;width:0!important;';
+                });
+            } catch(e){}
         });
 
-        // 2. Hide Material Icons span that shows keyboard_double_arrow_right text
-        //    This is the icon that renders as rd_double_ or keyboard_dou text
-        document.querySelectorAll('span.material-icons, span.material-icons-sharp, span[class*="material"]').forEach(function(el){
-            el.closest('button') && (el.closest('button').style.display = 'none');
-        });
-
-        // 3. Hide any button/element whose text content includes these Material icon names
-        var iconNames = ['keyboard_double_arrow', 'double_arrow', 'chevron_left', 'chevron_right', 'arrow_forward'];
-        document.querySelectorAll('button, [role="button"]').forEach(function(el){
-            var t = (el.innerText || el.textContent || '').trim();
-            iconNames.forEach(function(name){
-                if(t.includes(name)){ el.style.display='none'; }
+        // Kill by text content (Material icon names)
+        document.querySelectorAll('button').forEach(function(btn){
+            var txt = (btn.innerText || btn.textContent || '').trim();
+            KILL_TEXT.forEach(function(name){
+                if(txt.includes(name)){
+                    btn.style.cssText += 'display:none!important;';
+                }
             });
         });
 
-        // 4. Broad catch: any small button near the sidebar edge
-        document.querySelectorAll('[data-testid="stSidebar"] ~ * button').forEach(function(el){
-            var t = (el.innerText || el.textContent || '').trim();
-            if(t.includes('arrow') || t.includes('keyboard') || t === '›' || t === '»'){
-                el.style.display='none';
+        // Kill tiny floating buttons (Streamlit puts a "> " collapse btn)
+        document.querySelectorAll('button').forEach(function(btn){
+            var rect = btn.getBoundingClientRect();
+            var txt = (btn.innerText || btn.textContent || '').trim();
+            // Small floating button with icon-like text near left edge
+            if(rect.width < 60 && rect.left < 80 && txt.length < 5 && !txt.includes('Out')){
+                btn.style.cssText += 'display:none!important;';
             }
         });
     }
-    killSidebarToggle();
-    var mo = new MutationObserver(killSidebarToggle);
-    mo.observe(document.body,{childList:true,subtree:true});
-    [100,300,700,1500,3000].forEach(function(t){ setTimeout(killSidebarToggle,t); });
+
+    nukeNativeButtons();
+    var mo = new MutationObserver(nukeNativeButtons);
+    mo.observe(document.body, {childList:true, subtree:true});
+    [100, 300, 600, 1200, 2500].forEach(function(t){ setTimeout(nukeNativeButtons, t); });
 })();
 </script>
 """, unsafe_allow_html=True)
@@ -1052,8 +1089,8 @@ st.markdown(f"""
 _h1, _h2, _h3, _h4 = st.columns([6.8, 1.5, 1.1, 1.1])
 
 with _h2:
-    # ── SIDEBAR TOGGLE BUTTON (DataForge-style) ──
-    _sb_label = "◀ Hide Sidebar" if st.session_state.sidebar_open else "▶ Show Sidebar"
+    # ── SIDEBAR TOGGLE BUTTON ──
+    _sb_label = "☰  Menu" if not st.session_state.sidebar_open else "✕  Close"
     if st.button(_sb_label, key="sidebar_toggle_btn", use_container_width=True):
         st.session_state.sidebar_open = not st.session_state.sidebar_open
         st.rerun()
