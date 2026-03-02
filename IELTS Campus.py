@@ -248,34 +248,83 @@ st.markdown(f"""
     transition:background 0.5s ease,background-color 0.5s ease,color 0.4s ease,border-color 0.4s ease !important;
     box-sizing:border-box !important;
 }}
-#MainMenu{{visibility:hidden;}}footer{{visibility:hidden;}}
+/* ── HIDE STREAMLIT CHROME ── */
+#MainMenu{{visibility:hidden;}}
+footer{{visibility:hidden;}}
+header[data-testid="stHeader"]{{
+    background:{BG} !important;
+    border-bottom:1px solid {BORDER} !important;
+    height:2.8rem !important;
+}}
+/* Hide the ugly keyboard_double_arrow text / icon area */
+[data-testid="stHeader"] > div:first-child {{
+    display:none !important;
+}}
+/* Hide toolbar buttons */
+[data-testid="stToolbar"]{{visibility:hidden !important; height:0 !important;}}
+[data-testid="stDecoration"]{{display:none !important;}}
+[data-testid="stStatusWidget"]{{display:none !important;}}
+.stAppToolbar{{display:none !important;}}
+div[class*="viewerBadge"]{{display:none !important;}}
 
-/* ── SIDEBAR TOGGLE BUTTON (styled, Streamlit native) ── */
-[data-testid="collapsedControl"] {{
+/* ── SIDEBAR TOGGLE: clean custom pill button ── */
+[data-testid="collapsedControl"]{{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:all !important;
+    position:fixed !important;
+    top:50% !important;
+    left:0 !important;
+    transform:translateY(-50%) !important;
+    z-index:2147483647 !important;
+    width:22px !important;
+    height:56px !important;
     background:{ACCENT} !important;
     border-radius:0 10px 10px 0 !important;
-    box-shadow:3px 0 16px {BTN_GLOW} !important;
-    width:1.5rem !important;
-    transition:all 0.2s ease !important;
+    box-shadow:3px 0 18px {BTN_GLOW} !important;
+    cursor:pointer !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:none !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    transition:width 0.2s ease !important;
 }}
-[data-testid="collapsedControl"]:hover {{
-    width:2rem !important;
+[data-testid="collapsedControl"]:hover{{
+    width:28px !important;
     box-shadow:4px 0 24px {BTN_GLOW} !important;
-    filter:brightness(1.15) !important;
 }}
-[data-testid="collapsedControl"] svg {{
-    fill:white !important;
+/* Hide the text/icon inside — we show our own arrow via ::after */
+[data-testid="collapsedControl"] *{{
+    opacity:0 !important;
+    width:0 !important;
+    height:0 !important;
+    overflow:hidden !important;
+    display:none !important;
+}}
+/* Our own clean arrow */
+[data-testid="collapsedControl"]::after{{
+    content:'\203A' !important;
     color:white !important;
-}}
-[data-testid="collapsedControl"] svg path {{
-    fill:white !important;
-    stroke:white !important;
+    font-size:1.4rem !important;
+    font-weight:700 !important;
+    font-family:sans-serif !important;
+    line-height:1 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:22px !important;
+    height:56px !important;
+    opacity:1 !important;
+    pointer-events:none !important;
 }}
 
 html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
 .main,.block-container,[data-testid="stAppViewContainer"],
 [data-testid="stAppViewBlockContainer"] {{ background:{BG} !important; }}
-.block-container {{ padding-top:1rem !important; max-width:1380px; }}
+.block-container {{ padding-top:0.5rem !important; max-width:1380px; }}
+.main {{ padding-top:0 !important; }}
 
 
 
