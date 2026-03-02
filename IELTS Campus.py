@@ -173,6 +173,8 @@ if "scores" not in st.session_state:      st.session_state.scores = {}
 if "show_admin" not in st.session_state:  st.session_state.show_admin = False
 
 # ── Auto-login ──
+if "sidebar_open" not in st.session_state:
+    st.session_state.sidebar_open = True
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
     st.session_state.current_user  = None
@@ -250,10 +252,14 @@ st.markdown(f"""
 body, p, span, div, input, textarea, select, button, label, td, th, li {{
     font-family:'DM Sans',-apple-system,sans-serif !important;
 }}
-/* ── HIDE STREAMLIT CHROME (DataForge exact) ── */
+/* ── HIDE ALL STREAMLIT CHROME ── */
 #MainMenu{{visibility:hidden;}}footer{{visibility:hidden;}}
+header[data-testid="stHeader"]{{display:none !important;}}
+[data-testid="stToolbar"]{{display:none !important;}}
 [data-testid="stDecoration"]{{display:none !important;}}
 [data-testid="stStatusWidget"]{{display:none !important;}}
+[data-testid="collapsedControl"]{{display:none !important;}}
+.stAppToolbar{{display:none !important;}}
 div[class*="viewerBadge"]{{display:none !important;}}
 
 html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
@@ -263,7 +269,8 @@ html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
 
 
 
-/* ── SIDEBAR (DataForge exact pattern) ── */
+/* ── SIDEBAR ── */
+{"" if st.session_state.get("sidebar_open", True) else "section[data-testid=\"stSidebar\"] { display:none !important; }"}
 section[data-testid="stSidebar"]{{background:{"linear-gradient(180deg,#0a0000 0%,#100500 100%)" if T=="dark" else "#fdf8f5"} !important;border-right:{"1px solid #1c1c1c" if T=="dark" else "2px solid #e8d5c8"} !important;box-shadow:{"4px 0 20px rgba(0,0,0,0.6)" if T=="dark" else "4px 0 16px rgba(0,0,0,0.08)"} !important;min-height:100vh !important;}}
 section[data-testid="stSidebar"]>div{{background:{"transparent" if T=="dark" else "#fdf8f5"} !important;}}
 section[data-testid="stSidebar"] *{{color:{TEXT1} !important;}}
@@ -944,12 +951,17 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-_h1, _h2, _h3 = st.columns([8, 1.1, 1.1])
+_h1, _h2, _h3, _h4 = st.columns([7, 1.1, 1.1, 1.1])
 with _h2:
+    sb_icon = "✕ Menu" if st.session_state.get("sidebar_open", True) else "☰ Menu"
+    if st.button(sb_icon, key="sidebar_toggle_btn", use_container_width=True):
+        st.session_state.sidebar_open = not st.session_state.get("sidebar_open", True)
+        st.rerun()
+with _h3:
     theme_lbl = "🌙 Dark" if T == "light" else "☀️ Light"
     if st.button(theme_lbl, key="theme_toggle", use_container_width=True):
         st.session_state.theme = "dark" if T == "light" else "light"; st.rerun()
-with _h3:
+with _h4:
     if st.button("🚪 Out", key="hdr_logout", use_container_width=True):
         tok = st.session_state.get("login_token")
         if tok: delete_token(tok)
