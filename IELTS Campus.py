@@ -244,9 +244,11 @@ st.markdown(f"""
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 *,*::before,*::after {{
-    font-family:'DM Sans',-apple-system,sans-serif !important;
     transition:background 0.5s ease,background-color 0.5s ease,color 0.4s ease,border-color 0.4s ease !important;
     box-sizing:border-box !important;
+}}
+body, p, span, div, input, textarea, select, button, label, td, th, li {{
+    font-family:'DM Sans',-apple-system,sans-serif !important;
 }}
 /* ── HIDE STREAMLIT CHROME (DataForge exact) ── */
 #MainMenu{{visibility:hidden;}}footer{{visibility:hidden;}}
