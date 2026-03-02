@@ -290,7 +290,7 @@ body, p, span, div, input, textarea, select, button, label, td, th, li {{
 [data-testid="stStatusWidget"]{{display:none !important;}}
 div[class*="viewerBadge"]{{display:none !important;}}
 /* ── Custom Sidebar Toggle Button ── */
-div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button {
+div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button {{
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
     border: none !important;
@@ -301,12 +301,12 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button {
     padding: 0.4rem 0.8rem !important;
     box-shadow: 0 4px 15px rgba(102,126,234,0.4) !important;
     transition: all 0.2s ease !important;
-}
-div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button:hover {
+}}
+div[data-testid="stHorizontalBlock"] > div:nth-child(2) .stButton > button:hover {{
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 20px rgba(102,126,234,0.6) !important;
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-}
+}}
 
 /* ── ALWAYS hide Streamlit's native sidebar collapse arrow & resize handle ── */
 [data-testid="collapsedControl"]{{display:none !important;}}
