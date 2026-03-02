@@ -255,12 +255,22 @@ section[data-testid="stSidebar"] {
 [data-testid="collapsedControl"] {
     display: none !important;
 }
+button[kind="header"] {
+    display: none !important;
+}
 .block-container {
     max-width: 100% !important;
     padding-left: 1.5rem !important;
     padding-right: 1.5rem !important;
 }
-""" if not st.session_state.sidebar_open else ""
+""" if not st.session_state.sidebar_open else """
+[data-testid="collapsedControl"] {
+    display: none !important;
+}
+button[kind="header"] {
+    display: none !important;
+}
+"""
 # ════════════════════════════════════════════════════════════════════
 
 # ─── GLOBAL CSS ──────────────────────────────────────────────────────────────────
@@ -279,6 +289,17 @@ body, p, span, div, input, textarea, select, button, label, td, th, li {{
 [data-testid="stDecoration"]{{display:none !important;}}
 [data-testid="stStatusWidget"]{{display:none !important;}}
 div[class*="viewerBadge"]{{display:none !important;}}
+/* ── ALWAYS hide Streamlit's native sidebar collapse arrow & resize handle ── */
+[data-testid="collapsedControl"]{{display:none !important;}}
+button[kind="header"]{{display:none !important;}}
+[data-testid="stSidebarCollapseButton"]{{display:none !important;}}
+[data-testid="stSidebarResizeHandle"]{{display:none !important;}}
+div[class*="resizeHandle"]{{display:none !important;}}
+div[class*="ResizeHandle"]{{display:none !important;}}
+div[class*="sidebarToggle"]{{display:none !important;}}
+div[class*="SidebarToggle"]{{display:none !important;}}
+span[aria-label*="double"]{{display:none !important;}}
+[class*="eyuhmvp"]{{display:none !important;}}
 
 html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
 .main,.block-container,[data-testid="stAppViewContainer"],
