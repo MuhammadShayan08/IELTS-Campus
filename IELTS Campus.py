@@ -300,6 +300,12 @@ div[class*="sidebarToggle"]{{display:none !important;}}
 div[class*="SidebarToggle"]{{display:none !important;}}
 span[aria-label*="double"]{{display:none !important;}}
 [class*="eyuhmvp"]{{display:none !important;}}
+/* ── Material Icons sidebar arrow (keyboard_double_arrow_right) ── */
+span.material-icons{{display:none !important;}}
+span.material-symbols-outlined{{display:none !important;}}
+span[class*="material"]{{font-size:0 !important; width:0 !important; overflow:hidden !important;}}
+button:has(span.material-icons){{display:none !important;}}
+button:has(span[class*="material"]){{display:none !important;}}
 
 html,body {{ background:{BG} !important; color:{TEXT1} !important; }}
 .main,.block-container,[data-testid="stAppViewContainer"],
@@ -622,6 +628,49 @@ div[data-testid="stHorizontalBlock"]>div:nth-child(4) .stButton>button:hover {{
    ════════════════════════════════════════════════════════════ */
 {_sidebar_hide_css}
 </style>
+""", unsafe_allow_html=True)
+
+# ─── JS: Force remove sidebar Material Icon toggle button ───────────────────
+st.markdown("""
+<script>
+(function() {
+    function killSidebarToggle() {
+        // 1. Hide by data-testid selectors
+        ['[data-testid="stSidebarResizeHandle"]',
+         '[data-testid="collapsedControl"]',
+         '[data-testid="stSidebarCollapseButton"]'].forEach(function(s){
+            document.querySelectorAll(s).forEach(function(e){ e.style.display='none'; });
+        });
+
+        // 2. Hide Material Icons span that shows keyboard_double_arrow_right text
+        //    This is the icon that renders as rd_double_ or keyboard_dou text
+        document.querySelectorAll('span.material-icons, span.material-icons-sharp, span[class*="material"]').forEach(function(el){
+            el.closest('button') && (el.closest('button').style.display = 'none');
+        });
+
+        // 3. Hide any button/element whose text content includes these Material icon names
+        var iconNames = ['keyboard_double_arrow', 'double_arrow', 'chevron_left', 'chevron_right', 'arrow_forward'];
+        document.querySelectorAll('button, [role="button"]').forEach(function(el){
+            var t = (el.innerText || el.textContent || '').trim();
+            iconNames.forEach(function(name){
+                if(t.includes(name)){ el.style.display='none'; }
+            });
+        });
+
+        // 4. Broad catch: any small button near the sidebar edge
+        document.querySelectorAll('[data-testid="stSidebar"] ~ * button').forEach(function(el){
+            var t = (el.innerText || el.textContent || '').trim();
+            if(t.includes('arrow') || t.includes('keyboard') || t === '›' || t === '»'){
+                el.style.display='none';
+            }
+        });
+    }
+    killSidebarToggle();
+    var mo = new MutationObserver(killSidebarToggle);
+    mo.observe(document.body,{childList:true,subtree:true});
+    [100,300,700,1500,3000].forEach(function(t){ setTimeout(killSidebarToggle,t); });
+})();
+</script>
 """, unsafe_allow_html=True)
 
 
